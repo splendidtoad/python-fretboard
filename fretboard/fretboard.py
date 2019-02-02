@@ -53,8 +53,9 @@ class Fretboard(object):
     # Guitars and basses have different inlay patterns than, e.g., ukulele
     # A double inlay will be added at the octave (12th fret)
     inlays = (3, 5, 7, 9)
+    double_inlays = 12,
 
-    def __init__(self, strings=6, frets=(0, 5), inlays=None, style=None):
+    def __init__(self, strings=6, frets=(0, 5), inlays=None, double_inlays=None, style=None):
         self.frets = list(range(max(frets[0] - 1, 0), frets[1] + 1))
         self.strings = [attrdict.AttrDict({
             'color': None,
@@ -65,6 +66,8 @@ class Fretboard(object):
         self.markers = []
 
         self.inlays = inlays or self.inlays
+
+        self.double_inlays = double_inlays or self.double_inlays
 
         self.layout = attrdict.AttrDict()
 
@@ -173,7 +176,7 @@ class Fretboard(object):
                 )
             )
 
-    def draw_inlays(self):
+    def draw_inlays(self):  #TODO optional param to draw inlays in fretboard
         x = (self.style.drawing.spacing) - (self.style.inlays.radius * 4)
 
         for index, fret in enumerate(self.frets):
@@ -186,7 +189,7 @@ class Fretboard(object):
                 self.layout.fret_space * index,
             )) - self.layout.fret_space / 2
 
-            if fret in self.inlays or fret - 12 in self.inlays:
+            if fret in self.inlays:
                 # Single dot inlay
                 self.drawing.add(
                     self.drawing.circle(
@@ -195,7 +198,7 @@ class Fretboard(object):
                         fill=self.style.inlays.color,
                     )
                 )
-            elif fret > 0 and not fret % 12:
+            elif fret > 0 and fret in self.double_inlays:
                 # Double dot inlay
                 self.drawing.add(
                     self.drawing.circle(
